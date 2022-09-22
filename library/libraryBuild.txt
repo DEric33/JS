@@ -1,0 +1,91 @@
+Build a Library
+Congratulations, you’ve become head librarian at your local Books-‘N-Stuff, 
+which is in dire need of your help. They’re still using index cards to 
+organize their content! Yikes.
+
+But no matter, you know some JavaScript, so let’s get to work modernizing 
+your new digs.
+
+Books-‘N-Stuff carries three different types of media: books, CDs, and movies. 
+In this project you will create a parent class named Media with three subclasses: 
+Book, Movie, and CD. These three subclasses have the following properties 
+and methods:
+
+Book
+Properties: author (string), title (string), pages (number), isCheckedOut 
+            (boolean, initially false), and ratings (array, initially empty).
+Getters: all properties have a getter
+Methods: .getAverageRating(), .toggleCheckOutStatus(), and .addRating()
+
+Movie
+Properties: director (string), title (string), runTime (number), isCheckedOut 
+(boolean, initially false), and ratings (array, initially empty)
+Getters: all properties have a getter
+Methods: .getAverageRating(), .toggleCheckOutStatus(), and .addRating()
+
+CD
+Properties: artist (string), title (string), isCheckedOut (boolean, initially 
+false), and ratings (array, initially empty), songs (array of strings)
+Getters: all properties have a getter
+Methods: .getAverageRating(), .toggleCheckOutStatus(), and .addRating()
+
+If you’re looking for a challenge, try to create the four classes without using 
+the steps below.
+
+===========================================================
+
+Construire une bibliothèque
+Félicitations, vous êtes devenu bibliothécaire en chef de votre Books-‘N-Stuff local, 
+qui a désespérément besoin de votre aide. Ils utilisent toujours des fiches pour 
+organiser leur contenu ! Ouais.
+
+Mais peu importe, vous connaissez un peu JavaScript, alors mettons-nous au travail 
+pour moderniser vos nouvelles fouilles.
+
+Books-‘N-Stuff propose trois types de supports différents : livres, CD et films. 
+Dans ce projet, vous allez créer une classe parent nommée Media avec trois sous-classes : 
+Book, Movie et CD. Ces trois sous-classes ont les propriétés et méthodes suivantes :
+
+Livre
+Propriétés : auteur (chaîne), titre (chaîne), pages (nombre), isCheckedOut 
+            (booléen, initialement faux) et notes (tableau, initialement vide).
+Getters : toutes les propriétés ont un getter
+Méthodes : .getAverageRating(), .toggleCheckOutStatus() et .addRating()
+
+Film
+Propriétés : directeur (chaîne), titre (chaîne), runTime (nombre), isCheckedOut 
+            (booléen, initialement faux) et évaluations (tableau, initialement vide)
+Getters : toutes les propriétés ont un getter
+Méthodes : .getAverageRating(), .toggleCheckOutStatus() et .addRating()
+
+CD
+Propriétés : artiste (chaîne), titre (chaîne), isCheckedOut (booléen, initialement 
+            faux) et notes (tableau, initialement vide), chansons (tableau de chaînes)
+Getters : toutes les propriétés ont un getter
+Méthodes : .getAverageRating(), .toggleCheckOutStatus() et .addRating()
+
+Si vous cherchez un défi, essayez de créer les quatre classes sans utiliser les étapes 
+ci-dessous.
+
+
+
+
+
+===========================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Dans le constructeur, définissez les valeurs des propriétés Media partagées par Book, 
+CD et Movie. Faites précéder tous les noms de propriété d'un trait de soulignement (_).
