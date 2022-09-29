@@ -9,6 +9,7 @@ var eau = 20; // 20 litres d'eau
 var carottes = 30; // 30 kilos de carottes
 var mCages = 1; // nb cages males
 var fCages = 1; // nb cages femelles
+var maxCage = 25; // nb max par cage
 var caisse = 50; // 50 euros en caisse de départ
 var prixCaisse; // tarif caisse entre 5 et 8 euros
 var prixCarottes; // tarif carottes entre 2 et 4 euros le kilo
@@ -38,7 +39,7 @@ function getRandom(min, max) {
     repartition => 2/3 petits 1/3 adultes // 1/2 M/F
     => entree et sortie : aMales pMales aFemelles pFemelles 
  */
-function verifCarottes(aMales,pMales,aFemelles,pFemelles){
+function verifCarottes(aMales,pMales,aFemelles,pFemelles,mCages,fCages){
   var adultes = aMales + aFemelles;
   var petits =  pMales + pFemelles;
   var simule = (adultes * consoCarotteAdulte) + (petits * consoCarottePetit);
@@ -68,7 +69,7 @@ for (month = 1; month < periode; month++) {
   console.log("Carottes disponibles : " + carottes + " kg");
 
 
-  verifCarottes(aMales,aFemelles,pMales,pFemelles);
+  verifCarottes(aMales,aFemelles,pMales,pFemelles,mCages,fCages);
 
 
 
@@ -76,13 +77,52 @@ for (month = 1; month < periode; month++) {
 
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
 
+  prixCaisse = getRandom(5, 8);
+  prixCarottes = getRandom(2, 4);
+  prixLitre = getRandom(50, 150) / 100;
+  prixFemelle = getRandom(300,600) / 100;
+  prixMale = getRandom(250,500) / 100;
+
+  /****************/
+  /**** VENTES ****/
+  /****************/
+
+  console.log("******************************************");
+  console.log("***               VENTES               ***");
+  console.log("******************************************");
+
+  console.log("Le prix d'un lapin male est de " + prixMale.toFixed(2) + " €");
+  do {
+    mVente = readlineSync.question(
+      "Combien voulez-vous vendre de lapins males ? "
+    );
+  } while (mVente > aMales);
+  caisse += mVente * prixMale;
+
+  console.log("Le prix d'un lapin femelle est de " + prixFemelle.toFixed(2) + " €");
+  do {
+    fVente = readlineSync.question(
+      "Combien voulez-vous vendre de lapins femelles ? "
+    );
+  } while (fVente > aFemelles);
+  caisse += fVente * prixFemelle;
+
+  /***********************/
+  /**** ACCOUPLEMENTS ****/
+  /***********************/
+  console.log("******************************************");
+  console.log("***          ACCOUPLEMENTS             ***");
+  console.log("******************************************");
   do {
     accoup = readlineSync.question("Combien d'accouplement(s) ? ");
   } while (accoup > aMales); // nb accouplements doit etre <= nb max de malles ou de femelles
 
-  prixCaisse = getRandom(5, 8);
-  prixCarottes = getRandom(2, 4);
-  prixLitre = getRandom(50, 150) / 100;
+  /****************/
+  /**** ACHATS ****/
+  /****************/
+  console.log("******************************************");
+  console.log("***              ACHATS                ***");
+  console.log("******************************************");
 
   console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
@@ -135,7 +175,7 @@ for (month = 1; month < periode; month++) {
   console.log("*** ============ ***");
   console.log();
 
-  // pour round suivant
+  // pour round suivant -- SAUF DERNIER TOUR
   aMales += pMales;
   aFemelles += pFemelles;
 }
