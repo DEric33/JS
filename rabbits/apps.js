@@ -70,12 +70,46 @@ for (month = 1; month < periode; month++) {
   carottes -=
     (aMales + aFemelles) * consoCarotteAdulte +
     (pMales + pFemelles) * consoCarottePetit;
+
+// si carottes < 0 , calcul nb morts
+// nbMorts = carottes / consoCarottesAdulte
+// nbMortsMales = nbMorts / 2;
+// nbMortsFemelles = nbMorts - nbMortsMales:
+//  carottes = 0;
+//  aMales -= nbMortsMales;
+//  aFemelles -= nbMortsFemelles
+
+// debug
+console.log("Nb males avant deduction carottess : "+aMales);
+console.log("Nb femelles avant deduction carottess : "+aFemelles);
+
+  if(carottes<0){
+    var nbMorts = Math.abs(carottes / consoCarotteAdulte);
+    var nbMortsMales = nbMorts / 2;
+    var nbMortsFemelles = nbMorts - nbMortsMales;
+    carottes = 0;
+    aMales -= nbMortsMales.toFixed(0);
+    if(aMales<0){
+      console.log("Tous les males adultes sont morts ce mois ci !");
+      aMales = 0;
+    }
+    aFemelles -= nbMortsFemelles.toFixed(0);
+    if(aFemelles<0){
+      console.log("Toutes les femelles adultes sont mortes ce mois ci !");
+      aFemelles = 0;
+    }
+  }
+
   console.log("Carottes disponibles : " + carottes + " kg");
 
 
  // verifCarottes(aMales,aFemelles,pMales,pFemelles);
 
+// debug
+console.log("Nb males apres deduction carottess : "+aMales);
+console.log("Nb femelles apres deduction carottess : "+aFemelles);
 
+console.log();
 
   
 
@@ -91,6 +125,8 @@ for (month = 1; month < periode; month++) {
   /**** VENTES ****/
   /****************/
 
+/* N'a pas de sens sur le mois 1 ... male ou femelle = 0 <=> fin de partie*/
+if(month != 1){
   console.log("******************************************");
   console.log("***               VENTES               ***");
   console.log("******************************************");
@@ -102,6 +138,9 @@ for (month = 1; month < periode; month++) {
     );
   } while (mVente > aMales);
   caisse += mVente * prixMale;
+  aMales -= mVente;
+
+  console.log();
 
   console.log("Le prix d'un lapin femelle est de " + prixFemelle.toFixed(2) + " €");
   do {
@@ -110,6 +149,8 @@ for (month = 1; month < periode; month++) {
     );
   } while (fVente > aFemelles);
   caisse += fVente * prixFemelle;
+  aFemelles -= fVente;
+}
 
   /***********************/
   /**** ACCOUPLEMENTS ****/
@@ -119,7 +160,7 @@ for (month = 1; month < periode; month++) {
   console.log("******************************************");
   do {
     accoup = readlineSync.question("Combien d'accouplement(s) ? ");
-  } while (accoup > aMales); // nb accouplements doit etre <= nb max de malles ou de femelles
+  } while ((accoup > aMales) || (accoup > aFemelles) || (accoup === "")); // nb accouplements doit etre <= nb max de malles ou de femelles
 
   /****************/
   /**** ACHATS ****/
@@ -142,6 +183,8 @@ for (month = 1; month < periode; month++) {
   console.log("mCages = "+mCages);
   // f debug
 
+  console.log();
+  
   console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
@@ -152,6 +195,8 @@ for (month = 1; month < periode; month++) {
   caisse -= fAchatCaisse * prixCaisse;
   fCages += fAchatCaisse * 1; // multiplier par 1 force l'integer, sinon passe en concatenation
 
+  console.log();
+  
   console.log("Le prix d'un kilo de carottes est de " + prixCarottes.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
@@ -162,6 +207,8 @@ for (month = 1; month < periode; month++) {
   caisse -= achatCarottes * prixCarottes;
   carottes += achatCarottes * 1;
 
+  console.log();
+  
   console.log("Le prix du litre d'eau est de " + prixLitre.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
