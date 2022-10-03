@@ -32,6 +32,13 @@ function getRandom(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function toContinue(sRabbit,sex){
+  if(sRabbit==0){
+    console.log("You have lost ! Without rabbits "+sex+" you can't continue reproduction !");
+    return periode; // end of game
+  }
+}
+
 // mortalité manque carottes
 /* si conso cheptel superieur kg carottes
     calcule combien de lapins sont nourris
@@ -237,4 +244,10 @@ if(month != 1){
   // pour round suivant -- SAUF DERNIER TOUR
   aMales += pMales;
   aFemelles += pFemelles;
+
+  toContinue(aMales+pMales,"Males");
+  toContinue(aFemelles+pFemelles,"Femelles");
+  
+
+  
 }
