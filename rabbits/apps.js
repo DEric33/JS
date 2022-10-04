@@ -53,9 +53,13 @@ function verifCarottes(aMales,pMales,aFemelles,pFemelles){
   return console.log("Simule = "+simule);
 }
 
-//console.log(getRandomPortee(2,10));
+// eau potentiellement consommée
+function availableWater(adults,smalls) {
+  return adults * consoEauAdulte +
+  smalls * consoEauPetit;
+}
 
-console.clear;
+// console.clear(); doesn't work on windows
 
 for (month = 1; month < periode; month++) {
   //console.log(month);
@@ -69,10 +73,34 @@ for (month = 1; month < periode; month++) {
   console.log("Femelles par cage : "+ Math.trunc(aFemelles/fCages));
 
   // avant accouplements, calcul des consos du cheptel actuel
-  eau -=
-    (aMales + aFemelles) * consoEauAdulte +
-    (pMales + pFemelles) * consoEauPetit;
-  console.log("Eau disponible : " + eau + " l");
+  
+  eau -= availableWater(aMales + aFemelles , pMales + pFemelles);
+
+// si eau < 0 , calcul de morts
+// nbMorts = eau / consoEauAdulte
+// nbMortsMales = nbMorts / 2;
+// nbMortsFemelles = nbMorts - nbMortsMales:
+//  eau = 0;
+//  aMales -= nbMortsMales;
+//  aFemelles -= nbMortsFemelles
+if (eau<0) {
+  var nbMorts = Math.abs(eau / consoEauAdulte);
+  var nbMortsMales = nbMorts / 2;
+  var nbMortsFemelles = nbMorts - nbMortsMales;
+  eau = 0;
+  aMales -= nbMortsMales.toFixed(0);
+  if(aMales<0){
+    console.log("Tous les males adultes sont morts ce mois ci !");
+    aMales = 0;
+  }
+  aFemelles -= nbMortsFemelles.toFixed(0);
+  if(aFemelles<0){
+    console.log("Toutes les femelles adultes sont mortes ce mois ci !");
+    aFemelles = 0;
+  }
+}
+console.log("Eau disponible : " + eau + " l");
+
 
   carottes -=
     (aMales + aFemelles) * consoCarotteAdulte +
@@ -87,8 +115,8 @@ for (month = 1; month < periode; month++) {
 //  aFemelles -= nbMortsFemelles
 
 // debug
-console.log("Nb males avant deduction carottess : "+aMales);
-console.log("Nb femelles avant deduction carottess : "+aFemelles);
+//console.log("Nb males avant deduction carottes : "+aMales);
+//console.log("Nb femelles avant deduction carottes : "+aFemelles);
 
   if(carottes<0){
     var nbMorts = Math.abs(carottes / consoCarotteAdulte);
@@ -113,8 +141,8 @@ console.log("Nb femelles avant deduction carottess : "+aFemelles);
  // verifCarottes(aMales,aFemelles,pMales,pFemelles);
 
 // debug
-console.log("Nb males apres deduction carottess : "+aMales);
-console.log("Nb femelles apres deduction carottess : "+aFemelles);
+console.log("Nb males apres deduction carottes : "+aMales);
+console.log("Nb femelles apres deduction carottes : "+aFemelles);
 
 console.log();
 
@@ -133,15 +161,18 @@ console.log();
   /****************/
 
 /* N'a pas de sens sur le mois 1 ... male ou femelle = 0 <=> fin de partie*/
-if(month != 1){
+if(month != 1 && aMales > 0 && aFemelles > 0){
   console.log("******************************************");
   console.log("***               VENTES               ***");
   console.log("******************************************");
 
-  console.log("Le prix d'un lapin male est de " + prixMale.toFixed(2) + " €");
+ // mVente = rabbitSale(prixMale.toFixed(2))
+
+
+  console.log("Le prix d'un lapin male adulte est de " + prixMale.toFixed(2) + " €");
   do {
     mVente = readlineSync.question(
-      "Combien voulez-vous vendre de lapins males ? "
+      "Combien voulez-vous vendre de males ? "
     );
   } while (mVente > aMales);
   caisse += mVente * prixMale;
@@ -149,16 +180,17 @@ if(month != 1){
 
   console.log();
 
-  console.log("Le prix d'un lapin femelle est de " + prixFemelle.toFixed(2) + " €");
+  console.log("Le prix d'une lapine femelle adulte est de " + prixFemelle.toFixed(2) + " €");
   do {
     fVente = readlineSync.question(
-      "Combien voulez-vous vendre de lapins femelles ? "
+      "Combien voulez-vous vendre de femelles ? "
     );
   } while (fVente > aFemelles);
   caisse += fVente * prixFemelle;
   aFemelles -= fVente;
 }
 
+if(aMales > 0 && aFemelles > 0){
   /***********************/
   /**** ACCOUPLEMENTS ****/
   /***********************/
@@ -168,6 +200,7 @@ if(month != 1){
   do {
     accoup = readlineSync.question("Combien d'accouplement(s) ? ");
   } while ((accoup > aMales) || (accoup > aFemelles) || (accoup === "")); // nb accouplements doit etre <= nb max de malles ou de femelles
+}
 
   /****************/
   /**** ACHATS ****/
@@ -176,6 +209,7 @@ if(month != 1){
   console.log("***              ACHATS                ***");
   console.log("******************************************");
 
+  if(prixCaisse<caisse){
   console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
@@ -189,10 +223,14 @@ if(month != 1){
   console.log("machatCaisse = "+mAchatCaisse);
   console.log("mCages = "+mCages);
   // f debug
+} else {
+  console.log("Pas assez de liquidités pour acheter un casier pour les males");
+}
 
   console.log();
   
-  console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
+  if(prixCaisse<caisse){
+    console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
     fAchatCaisse = readlineSync.question(
@@ -201,10 +239,14 @@ if(month != 1){
   } while ((fAchatCaisse * prixCaisse > caisse) || (fAchatCaisse === ""));
   caisse -= fAchatCaisse * prixCaisse;
   fCages += fAchatCaisse * 1; // multiplier par 1 force l'integer, sinon passe en concatenation
+} else {
+  console.log("Pas assez de liquidités pour acheter un casier pour les femelles");
+}
 
   console.log();
   
-  console.log("Le prix d'un kilo de carottes est de " + prixCarottes.toFixed(2) + " €");
+  if(prixCarottes<caisse){
+    console.log("Le prix d'un kilo de carottes est de " + prixCarottes.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
     achatCarottes = readlineSync.question(
@@ -213,10 +255,14 @@ if(month != 1){
   } while ((achatCarottes * prixCarottes > caisse) || (achatCarottes === ""));
   caisse -= achatCarottes * prixCarottes;
   carottes += achatCarottes * 1;
+} else {
+  console.log("Pas assez de liquidités pour acheter un kilo de carottes");
+}
 
   console.log();
   
-  console.log("Le prix du litre d'eau est de " + prixLitre.toFixed(2) + " €");
+  if(prixLitre<caisse){
+    console.log("Le prix du litre d'eau est de " + prixLitre.toFixed(2) + " €");
   console.log("L'argent disponible en caisse est de " + caisse.toFixed(2) + " €");
   do {
     achatLitres = readlineSync.question(
@@ -225,11 +271,12 @@ if(month != 1){
   } while ((achatLitres * prixLitre > caisse) || (achatLitres === ""));
   caisse -= achatLitres * prixLitre;
   eau += achatLitres * 1;
+} else {
+  console.log("Pas assez de liquidités pour acheter un litre d'eau");
+}
 
   // portee minimale => 2 / maximale => 10
   portee = Math.round(accoup * getRandom(2, 10));
-
-
 
   // repartition pm/pf
   pFemelles = Math.round(portee / 2);
