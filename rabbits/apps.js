@@ -3,29 +3,29 @@ const { stdout } = require("process");
 const { clearScreenDown } = require("readline");
 var readlineSync = require("readline-sync");
 
+const maxCage = 25; // nb max par cage
+const consoEauAdulte = 2; // 2 litres par mois par adulte
+const consoCarotteAdulte = 3; // 3 kilos par mois par adulte
+const consoEauPetit = 1; // 1 litres par mois par petit
+const consoCarottePetit = 1.5; // 1.5 kilos par mois par petit
+const periode = 4; // nb de mois d'exploitation : 13 = 1 an , 25 = 2 ans ...
+
 var aMales = 1;
 var pMales = 0;
 var aFemelles = 1;
 var pFemelles = 0;
+var portee = 0; // nb de petits
+var accoup = 0; // nb accouplements
+//// VERIF USE ---- var pf = 0; // nb petites femelles
+//// VERIF USE ---- var pm = 0; // nb petits males
 var eau = 20; // 20 litres d'eau
 var carottes = 30; // 30 kilos de carottes
 var mCages = 1; // nb cages males
 var fCages = 1; // nb cages femelles
-var maxCage = 25; // nb max par cage
 var caisse = 50; // 50 euros en caisse de départ
 var prixCaisse; // tarif caisse entre 5 et 8 euros
 var prixCarottes; // tarif carottes entre 2 et 4 euros le kilo
 var prixLitre; // tarif entre .5 et 1.5
-//var coeffRep = 4; // multiplicateur de reproduction
-var periode = 4; // nb de mois d'exploitation : 13 = 1 an , 25 = 2 ans ...
-var portee = 0; // nb de petits
-var accoup = 0; // nb accouplements
-var pf = 0; // nb petites femelles
-var pm = 0; // nb petits males
-var consoEauAdulte = 2; // 2 litres par mois par adulte
-var consoCarotteAdulte = 3; // 3 kilos par mois par adulte
-var consoEauPetit = 1; // 1 litres par mois par petit
-var consoCarottePetit = 1.5; // 1.5 kilos par mois par petit
 
 /**Functions List
  * getRandom        generate interval between min and max value.. for price for example
@@ -37,6 +37,7 @@ var consoCarottePetit = 1.5; // 1.5 kilos par mois par petit
  * allDeath         print death and why
  * printBank        how much money
  * printPrice       print price of things
+ * gameVariables    calculate prices, conso by rabbit...
  */
 
 // nb aleatoire par : portee , tarif casier
@@ -113,8 +114,22 @@ function printPrice(what,how) {
   return msg;
 }
 
+function gameVariables(){
+  /* Generate month variables */
+  prixCaisse = getRandom(5, 8);
+  prixCarottes = getRandom(2, 4);
+  prixLitre = getRandom(50, 150) / 100;
+  prixFemelle = getRandom(300, 600) / 100;
+  prixMale = getRandom(250, 500) / 100;
+}
 
- //console.clear(); //doesn't work on windows
+
+
+
+
+
+
+//console.clear(); //doesn't work on windows
 
 for (month = 1; month < periode; month++) {
   //console.log(month);
@@ -201,13 +216,8 @@ for (month = 1; month < periode; month++) {
   // money in bank at this stage
   console.log(printBank());
 
-  /* Generate month variables */
-  prixCaisse = getRandom(5, 8);
-  prixCarottes = getRandom(2, 4);
-  prixLitre = getRandom(50, 150) / 100;
-  prixFemelle = getRandom(300, 600) / 100;
-  prixMale = getRandom(250, 500) / 100;
-
+  gameVariables();
+ 
   /****************/
   /**** VENTES ****/
   /****************/
