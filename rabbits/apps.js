@@ -1,4 +1,6 @@
 const { clear } = require("console");
+const { stdout } = require("process");
+const { clearScreenDown } = require("readline");
 var readlineSync = require("readline-sync");
 
 var aMales = 1;
@@ -31,7 +33,10 @@ var consoCarottePetit = 1.5; // 1.5 kilos par mois par petit
  * verifCarottes    is it food ?
  * availableWater   is it water ?
  * alertNotEnough   no more food or water or money
- * 
+ * state            print rabbits station
+ * allDeath         print death and why
+ * printBank        how much money
+ * printPrice       print price of things
  */
 
 // nb aleatoire par : portee , tarif casier
@@ -60,9 +65,9 @@ function toContinue(sRabbit, sex) {
     => entree et sortie : aMales pMales aFemelles pFemelles 
  */
 function verifCarottes(aMales, pMales, aFemelles, pFemelles) {
-  var adultes = aMales + aFemelles;
-  var petits = pMales + pFemelles;
-  var simule = adultes * consoCarotteAdulte + petits * consoCarottePetit;
+  let adultes = aMales + aFemelles;
+  let petits = pMales + pFemelles;
+  let simule = adultes * consoCarotteAdulte + petits * consoCarottePetit;
   return console.log("Simule = " + simule);
 }
 
@@ -72,27 +77,52 @@ function availableWater(adults, smalls) {
 }
 
 function alertNotEnough(who) {
-  var msg = "Pas assez de liquidités pour acheter un "+ who;
+  let msg = "Pas assez de liquidités pour acheter un "+ who;
   return msg;
 }
 
-
-
- console.clear(); //doesn't work on windows
-
-for (month = 1; month < periode; month++) {
-  //console.log(month);
-
-  // nb d'adultes
+function state(month) {
+  let space;
+  console.log();
+  console.log("**********************************");
+  space = month > 9 ? "*" : "**" ;
+  console.log("************ Mois "+ month + "  ***********" + space);
+  console.log("**********************************");
+  console.log();
   console.log("Males : " + aMales);
   console.log("Cage(s) Males : " + mCages);
   console.log("Males par cage : " + Math.trunc(aMales / mCages));
   console.log("Femelles : " + aFemelles);
   console.log("Cage(s) Femelles : " + fCages);
   console.log("Femelles par cage : " + Math.trunc(aFemelles / fCages));
+  console.log("**********************************");
+}
+
+function allDeath(sex,why){
+  let msg = sex+" adultes sont mort"+why+" ce mois ci !";
+  return msg;
+}
+
+function printBank() {
+  let msg = "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €";
+  return msg;
+}
+
+function printPrice(what,how) {
+  let msg = "Le prix "+ what +" est de " + how + " €";
+  return msg;
+}
+
+
+ //console.clear(); //doesn't work on windows
+
+for (month = 1; month < periode; month++) {
+  //console.log(month);
+
+  // number of rabbits and cages in month x
+  state(month);
 
   // avant accouplements, calcul des consos du cheptel actuel
-
   eau -= availableWater(aMales + aFemelles, pMales + pFemelles);
 
   // si eau < 0 , calcul de morts
@@ -103,18 +133,23 @@ for (month = 1; month < periode; month++) {
   //  aMales -= nbMortsMales;
   //  aFemelles -= nbMortsFemelles
   if (eau < 0) {
-    var nbMorts = Math.abs(eau / consoEauAdulte);
-    var nbMortsMales = nbMorts / 2;
-    var nbMortsFemelles = nbMorts - nbMortsMales;
+    let nbMorts = Math.abs(eau / consoEauAdulte);
+    console.log("nbMorts : "+nbMorts);
+    let nbMortsMales = nbMorts / 2;
+    console.log("nbMortsMales : "+nbMortsMales);
+    let nbMortsFemelles = nbMorts - nbMortsMales;
+    console.log("nbMortsFemelles : "+nbMortsFemelles);
+    console.log();
     eau = 0;
     aMales -= nbMortsMales.toFixed(0);
+    console.log("aMales : "+aMales);
     if (aMales < 0) {
-      console.log("Tous les males adultes sont morts ce mois ci !");
+      console.log(allDeath("Tous les males","s de soif"));
       aMales = 0;
     }
     aFemelles -= nbMortsFemelles.toFixed(0);
     if (aFemelles < 0) {
-      console.log("Toutes les femelles adultes sont mortes ce mois ci !");
+      console.log(allDeath("Toutes les femelles","es de soif"));
       aFemelles = 0;
     }
   }
@@ -137,18 +172,18 @@ for (month = 1; month < periode; month++) {
   //console.log("Nb femelles avant deduction carottes : "+aFemelles);
 
   if (carottes < 0) {
-    var nbMorts = Math.abs(carottes / consoCarotteAdulte);
-    var nbMortsMales = nbMorts / 2;
-    var nbMortsFemelles = nbMorts - nbMortsMales;
+    let nbMorts = Math.abs(carottes / consoCarotteAdulte);
+    let nbMortsMales = nbMorts / 2;
+    let nbMortsFemelles = nbMorts - nbMortsMales;
     carottes = 0;
     aMales -= nbMortsMales.toFixed(0);
     if (aMales < 0) {
-      console.log("Tous les males adultes sont morts ce mois ci !");
+      console.log(allDeath("Tous les males","s de faim"));
       aMales = 0;
     }
     aFemelles -= nbMortsFemelles.toFixed(0);
     if (aFemelles < 0) {
-      console.log("Toutes les femelles adultes sont mortes ce mois ci !");
+      console.log(allDeath("Toutes les femelles","es de faim"));
       aFemelles = 0;
     }
   }
@@ -163,9 +198,8 @@ for (month = 1; month < periode; month++) {
 
   console.log();
 
-  console.log(
-    "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €"
-  );
+  // money in bank at this stage
+  console.log(printBank());
 
   /* Generate month variables */
   prixCaisse = getRandom(5, 8);
@@ -186,9 +220,8 @@ for (month = 1; month < periode; month++) {
 
     // mVente = rabbitSale(prixMale.toFixed(2))
 
-    console.log(
-      "Le prix d'un lapin male adulte est de " + prixMale.toFixed(2) + " €"
-    );
+    console.log();
+    console.log(printPrice("d'un lapin male",prixMale.toFixed(2)));
     do {
       mVente = readlineSync.question("Combien voulez-vous vendre de males ? ");
     } while (mVente > aMales);
@@ -196,12 +229,7 @@ for (month = 1; month < periode; month++) {
     aMales -= mVente;
 
     console.log();
-
-    console.log(
-      "Le prix d'une lapine femelle adulte est de " +
-        prixFemelle.toFixed(2) +
-        " €"
-    );
+    console.log(printPrice("d'une lapine femelle",prixFemelle.toFixed(2)));
     do {
       fVente = readlineSync.question(
         "Combien voulez-vous vendre de femelles ? "
@@ -215,6 +243,7 @@ for (month = 1; month < periode; month++) {
     /***********************/
     /**** ACCOUPLEMENTS ****/
     /***********************/
+    console.log();
     console.log("******************************************");
     console.log("***          ACCOUPLEMENTS             ***");
     console.log("******************************************");
@@ -226,15 +255,14 @@ for (month = 1; month < periode; month++) {
   /****************/
   /**** ACHATS ****/
   /****************/
+  console.log();
   console.log("******************************************");
   console.log("***              ACHATS                ***");
   console.log("******************************************");
 
   if (prixCaisse < caisse) {
-    console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
-    console.log(
-      "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €"
-    );
+    console.log(printPrice("d'un casier",prixCaisse.toFixed(2)));
+    console.log(printBank());
     do {
       mAchatCaisse = readlineSync.question(
         "Combien voulez-vous acheter de caisses pour les males ? "
@@ -243,8 +271,8 @@ for (month = 1; month < periode; month++) {
     caisse -= mAchatCaisse * prixCaisse;
     mCages += mAchatCaisse * 1; // multiplier par 1 force l'integer, sinon passe en concatenation
     // debug
-    console.log("machatCaisse = " + mAchatCaisse);
-    console.log("mCages = " + mCages);
+    //console.log("machatCaisse = " + mAchatCaisse);
+    //console.log("mCages = " + mCages);
     // f debug
   } else {
     console.log(alertNotEnough("casier pour les males"));
@@ -253,10 +281,8 @@ for (month = 1; month < periode; month++) {
   console.log();
 
   if (prixCaisse < caisse) {
-    console.log("Le prix d'un casier est de " + prixCaisse.toFixed(2) + " €");
-    console.log(
-      "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €"
-    );
+    console.log(printPrice("d'un casier",prixCaisse.toFixed(2)));
+    console.log(printBank());
     do {
       fAchatCaisse = readlineSync.question(
         "Combien voulez-vous acheter de caisses pour les femelles ? "
@@ -273,12 +299,8 @@ for (month = 1; month < periode; month++) {
   console.log();
 
   if (prixCarottes < caisse) {
-    console.log(
-      "Le prix d'un kilo de carottes est de " + prixCarottes.toFixed(2) + " €"
-    );
-    console.log(
-      "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €"
-    );
+    console.log(printPrice("d'un kilo de carottes",prixCarottes.toFixed(2)));
+    console.log(printBank());
     do {
       achatCarottes = readlineSync.question(
         "Combien voulez-vous acheter de kilos de carottes ? "
@@ -293,10 +315,8 @@ for (month = 1; month < periode; month++) {
   console.log();
 
   if (prixLitre < caisse) {
-    console.log("Le prix du litre d'eau est de " + prixLitre.toFixed(2) + " €");
-    console.log(
-      "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €"
-    );
+    console.log(printPrice("d'un litre d'eau",prixLitre.toFixed(2)));
+    console.log(printBank());
     do {
       achatLitres = readlineSync.question(
         "Combien voulez-vous acheter de litres d'eau ? "
@@ -328,3 +348,5 @@ for (month = 1; month < periode; month++) {
   toContinue(aMales + pMales, "Males");
   toContinue(aFemelles + pFemelles, "Femelles");
 }
+
+state(13);
