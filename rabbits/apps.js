@@ -26,6 +26,7 @@ var caisse = 50; // 50 euros en caisse de départ
 var prixCaisse; // tarif caisse entre 5 et 8 euros
 var prixCarottes; // tarif carottes entre 2 et 4 euros le kilo
 var prixLitre; // tarif entre .5 et 1.5
+var debug = 1; // 0: normal / 1: debug
 
 /**Functions List
  * getRandom        generate interval between min and max value.. for price for example
@@ -83,6 +84,7 @@ function alertNotEnough(who) {
 }
 
 function state(month) {
+  //console.clear(); // work on windows with terminal, not with git bash
   let space;
   console.log();
   console.log("**********************************");
@@ -90,27 +92,35 @@ function state(month) {
   console.log("************ Mois "+ month + "  ***********" + space);
   console.log("**********************************");
   console.log();
-  console.log("Males : " + aMales);
-  console.log("Cage(s) Males : " + mCages);
-  console.log("Males par cage : " + Math.trunc(aMales / mCages));
-  console.log("Femelles : " + aFemelles);
-  console.log("Cage(s) Femelles : " + fCages);
-  console.log("Femelles par cage : " + Math.trunc(aFemelles / fCages));
+  console.log(`Males adultes : ${aMales}`);
+  console.log(`Petits males : ${pMales}`);
+  console.log(`Cage(s) Males : ${mCages}`);
+  console.log(`Males par cage : ${Math.trunc((aMales+pMales) / mCages)}`);
+  console.log();
+  console.log(`Femelles adultes : ${aFemelles}`);
+  console.log(`Petites femelles : ${pFemelles}`);
+  console.log(`Cage(s) Femelles : ${fCages}`);
+  console.log(`Femelles par cage : ${Math.trunc((aFemelles+pFemelles) / fCages)}`);
+  console.log();
+  console.log(`${eau} litre(s) d'eau`);
+  console.log(`${carottes} kilo(s) de nourriture`);
+  console.log();
   console.log("**********************************");
 }
 
 function allDeath(sex,why){
-  let msg = sex+" adultes sont mort"+why+" ce mois ci !";
+  let msg = `${sex} adultes sont mort${why} ce mois ci !`;
   return msg;
 }
 
 function printBank() {
-  let msg = "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €";
+/*  let msg = "L'argent disponible en caisse est de " + caisse.toFixed(2) + " €";*/
+  let msg = `L'argent disponible en caisse est de ${caisse.toFixed(2)} €`;
   return msg;
 }
 
 function printPrice(what,how) {
-  let msg = "Le prix "+ what +" est de " + how + " €";
+  let msg = `Le prix ${what} est de ${how} €`;
   return msg;
 }
 
@@ -123,19 +133,39 @@ function gameVariables(){
   prixMale = getRandom(250, 500) / 100;
 }
 
+function foodDeath(foodType, byRabbit){
+  let nbMorts = foodType / byRabbit;
+  let nbMortsMales = Math.abs(nbMorts / 2);
+  let nbMortsFemelles = Math.abs(nbMorts - nbMortsMales);
+  aMales -= nbMortsMales.toFixed(0);
+  aFemelles -= nbMortsFemelles.toFixed(0);
+}
 
 
 
 
 
-
-//console.clear(); //doesn't work on windows
 
 for (month = 1; month < periode; month++) {
+
+  // portee minimale => 2 / maximale => 10
+  portee = Math.round(accoup * getRandom(2, 10));
+
+  // repartition pm/pf
+  pFemelles = Math.round(portee / 2);
+  pMales = portee - pFemelles;
+
+  console.log("Lapinettes : " + pFemelles);
+  console.log("Lapinots : " + pMales);
+  console.log();
+  console.log("*** ============ ***");
+  console.log();
+
+
   //console.log(month);
 
   // number of rabbits and cages in month x
-  state(month);
+  //state(month);
 
   // avant accouplements, calcul des consos du cheptel actuel
   eau -= availableWater(aMales + aFemelles, pMales + pFemelles);
@@ -148,21 +178,12 @@ for (month = 1; month < periode; month++) {
   //  aMales -= nbMortsMales;
   //  aFemelles -= nbMortsFemelles
   if (eau < 0) {
-    let nbMorts = Math.abs(eau / consoEauAdulte);
-    console.log("nbMorts : "+nbMorts);
-    let nbMortsMales = nbMorts / 2;
-    console.log("nbMortsMales : "+nbMortsMales);
-    let nbMortsFemelles = nbMorts - nbMortsMales;
-    console.log("nbMortsFemelles : "+nbMortsFemelles);
-    console.log();
+    foodDeath(eau,consoEauAdulte);
     eau = 0;
-    aMales -= nbMortsMales.toFixed(0);
-    console.log("aMales : "+aMales);
     if (aMales < 0) {
       console.log(allDeath("Tous les males","s de soif"));
       aMales = 0;
     }
-    aFemelles -= nbMortsFemelles.toFixed(0);
     if (aFemelles < 0) {
       console.log(allDeath("Toutes les femelles","es de soif"));
       aFemelles = 0;
@@ -187,16 +208,12 @@ for (month = 1; month < periode; month++) {
   //console.log("Nb femelles avant deduction carottes : "+aFemelles);
 
   if (carottes < 0) {
-    let nbMorts = Math.abs(carottes / consoCarotteAdulte);
-    let nbMortsMales = nbMorts / 2;
-    let nbMortsFemelles = nbMorts - nbMortsMales;
+    foodDeath(carottes,consoCarotteAdulte);
     carottes = 0;
-    aMales -= nbMortsMales.toFixed(0);
     if (aMales < 0) {
       console.log(allDeath("Tous les males","s de faim"));
       aMales = 0;
     }
-    aFemelles -= nbMortsFemelles.toFixed(0);
     if (aFemelles < 0) {
       console.log(allDeath("Toutes les femelles","es de faim"));
       aFemelles = 0;
@@ -208,10 +225,13 @@ for (month = 1; month < periode; month++) {
   // verifCarottes(aMales,aFemelles,pMales,pFemelles);
 
   // debug
-  console.log("Nb males apres deduction carottes : " + aMales);
-  console.log("Nb femelles apres deduction carottes : " + aFemelles);
+  console.log("Nb males apres deduction eau et carottes : " + aMales);
+  console.log("Nb femelles apres deduction eau et carottes : " + aFemelles);
 
   console.log();
+
+  // number of rabbits and cages in month x
+  state(month);
 
   // money in bank at this stage
   console.log(printBank());
@@ -265,6 +285,8 @@ for (month = 1; month < periode; month++) {
   /****************/
   /**** ACHATS ****/
   /****************/
+  if(!debug)
+    {console.clear();}
   console.log();
   console.log("******************************************");
   console.log("***              ACHATS                ***");
@@ -338,23 +360,13 @@ for (month = 1; month < periode; month++) {
     console.log(alertNotEnough("litre d'eau"));
   }
 
-  // portee minimale => 2 / maximale => 10
-  portee = Math.round(accoup * getRandom(2, 10));
 
-  // repartition pm/pf
-  pFemelles = Math.round(portee / 2);
-  pMales = portee - pFemelles;
-
-  console.log("Lapinettes : " + pFemelles);
-  console.log("Lapinots : " + pMales);
-  console.log();
-  console.log("*** ============ ***");
-  console.log();
-
-  // pour round suivant -- SAUF DERNIER TOUR
+  // pour round suivant -- 
   aMales += pMales;
+  pMales = 0;
   aFemelles += pFemelles;
-
+  pFemelles = 0;
+  
   toContinue(aMales + pMales, "Males");
   toContinue(aFemelles + pFemelles, "Femelles");
 }
