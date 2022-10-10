@@ -8,7 +8,7 @@ const consoEauAdulte = 2; // 2 litres par mois par adulte
 const consoCarotteAdulte = 3; // 3 kilos par mois par adulte
 const consoEauPetit = 1; // 1 litres par mois par petit
 const consoCarottePetit = 1.5; // 1.5 kilos par mois par petit
-const periode = 4; // nb de mois d'exploitation : 13 = 1 an , 25 = 2 ans ...
+const periode = 13; // nb de mois d'exploitation : 13 = 1 an , 25 = 2 ans ...
 
 var aMales = 1;
 var pMales = 0;
@@ -84,7 +84,7 @@ function alertNotEnough(who) {
 }
 
 function state(month) {
-  //console.clear(); // work on windows with terminal, not with git bash
+  console.clear(); // work on windows with terminal, not with git bash
   let space;
   console.log();
   console.log("**********************************");
