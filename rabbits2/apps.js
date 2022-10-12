@@ -6,7 +6,7 @@ cheptel[]={[[0,1],[0,1],[0,0]],[[1,1],[1,1],[1,0]]}
 
 var males = [1, 1, 0]; // cage male - nb male adulte dans cages - nb male petit dans cages
 var femelles = [1, 1, 0]; // cage femelle - nb femelle adulte dans cages - nb femelle petit dans cages
-var varis = [20, 30, 50];  // litre d'eau - kilo de nourriture - argent en caisse
+var varis = [20, 30, 50, 25];  // litre d'eau - kilo de nourriture - argent en caisse - population par cage
 var param = [1, 1, .6, .8, 1, 2, 15]; // conso mois eau adulte male - conso mois carottes adulte male 
                                         // - variation conso adulte/petit - variation conso male/femelle 
                                         // - tarif base eau - tarif base carotte - variation tarif +/- en %
@@ -46,6 +46,42 @@ function paramStage() {
     console.log('Food : '+ foodMois);
 }
 
+function surPop(nLapins,nCage) {
+    let nbMorts = nLapins - (varis[3] * nCage);
+    // si nb morts > nb adultes => 2/3 - 1/3 deduire adultes - petits
+    // regle applicable sans condition d'exactitude proportionnelle : flou du resultat accepté
+    
+    return nbMorts;
+}
+
 state();
            
 paramStage();
+
+// Debut du jeu
+
+// si 1er tour, pas de vente
+// sinon combien de vente M et F adultes + test surpopulation cages
+console.log(surPop(68,2));
+
+// combien d'accouplements
+
+// combien de cages
+
+// combien de nourriture
+
+// combien d'eau
+
+// calcul nb lapins nouveau cheptel
+
+// calcul besoin en nourriture
+
+// calcul besoin en eau
+
+// si besoin nourriture suffisant, deduire nourriture necessaire
+// sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
+
+// si besoin eau suffisant, deduire eau necessaire
+// sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
+
+// si adulte M ou F = 0, continuer si M et F dans petits, sinon Game Over
