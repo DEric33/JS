@@ -13,14 +13,15 @@ paramStage      consommations du mois
 surPop          renvoie nb morts suite a surpopulation
 mortalite       mortalite pour faim ou soif
 affectCaisse    gestion caisse entree et sortie
+calculPrix      calcule tarifs eau, carottes, cage
 */
 
-var males = [1, 1, 0]; // cage male - nb male adulte dans cages - nb male petit dans cages
-var femelles = [1, 1, 0]; // cage femelle - nb femelle adulte dans cages - nb femelle petit dans cages
+var males = [1, 1, 0, 3]; // cage male - nb male adulte dans cages - nb male petit dans cages - tarif base M
+var femelles = [1, 1, 0, 4]; // cage femelle - nb femelle adulte dans cages - nb femelle petit dans cages - tarif base F
 var varis = [30, 60, 50, 25]; // litre d'eau - kilo de nourriture - argent en caisse - population par cage
-var param = [20, 15, 0.6, 0.8, 1, 2, 15]; // conso mois eau adulte male - conso mois carottes adulte male
+var param = [20, 15, 0.6, 0.8, 1, 2, 5, 15]; // conso mois eau adulte male - conso mois carottes adulte male
 // - variation conso adulte/petit - variation conso male/femelle
-// - tarif base eau - tarif base carotte - variation tarif +/- en %
+// - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
 var paramTmp = [];
 
 function state() {
@@ -84,7 +85,7 @@ function paramStage() {
 }
 
 function surPop(nLapins, nCage) {
-  let nbMorts = varis[3] * nCage - nLapins;
+  let nbMorts = nLapins - (varis[3] * nCage);
   // si nb morts > nb adultes => 2/3 - 1/3 deduire adultes - petits
   // regle applicable sans condition d'exactitude proportionnelle : flou du resultat accepté
   if (nbMorts > males[1] + femelles[1]) {
@@ -92,8 +93,9 @@ function surPop(nLapins, nCage) {
     males[2] = (males[2] / 3) * 2;
     femelles[1] = femelles[1] / 3;
     femelles[2] = (femelles[2] / 3) * 2;
-  }
-  return nbMorts;
+    return nbMorts;
+  } else
+  return 0;
 }
 
 // mortalité par faim ou par soif
@@ -157,6 +159,17 @@ function affectCaisse(direction, somme) {
   }
 }
 
+function calculPrix(valBase) {
+    let min = valBase*(1-(param[7]/100));
+    let max = valBase*(1+(param[7]/100));
+//     return min;
+   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/***********************/
+/* Debut d'application */
+/***********************/
+
 state();
 
 paramStage();
@@ -165,14 +178,25 @@ paramStage();
 
 // si 1er tour, pas de vente
 // sinon combien de vente M et F adultes + test surpopulation cages
-console.log('En plus : '+ affectCaisse(1,7));  // reste 57
 
-/////console.log(surPop(4,2));
+//===>> encaisser 7
+//===>> console.log('En plus : '+ affectCaisse(1,7));  // reste 57
+
+//===>> nb lapins dans nb cages
+//===>> console.log("Surpopulation : "+surPop(60,2));
 
 // combien d'accouplements
 
 // combien de cages
-console.log('En moins : '+ affectCaisse(0,10));  // reste 47
+//===>> decaisser 10
+//===>> console.log('En moins : '+ affectCaisse(0,10));  // reste 47
+
+console.log('Tarifs cage :'+calculPrix(param[6]));
+console.log('Tarifs Lapin Male :'+calculPrix(males[3]));
+console.log('Tarifs Lapin Femelle :'+calculPrix(femelles[3]));
+console.log('Tarifs litre d\'eau :'+calculPrix(param[4]));
+console.log('Tarifs kilo de carottes :'+calculPrix(param[5]));
+
 
 // combien de nourriture : index 1
 console.log("Besoin conso carottes: ");
@@ -197,14 +221,9 @@ console.log(mortalite(0));
 
 // si adulte M ou F = 0, continuer si M et F dans petits, sinon Game Over
 
-console.log(
-  "*********************************************************************"
-);
-console.log(
-  "*********************************************************************"
-);
-console.log(
-  "*********************************************************************"
-);
+console.log("*********************************************************************");
+console.log("*********************************************************************");
+console.log("*********************************************************************");
 console.log("");
+
 state();
