@@ -12,16 +12,18 @@ state           affiche l'etat du moment
 paramStage      consommations du mois
 surPop          renvoie nb morts suite a surpopulation
 mortalite       mortalite pour faim ou soif
+repro           reproduction
 affectCaisse    gestion caisse entree et sortie
 calculPrix      calcule tarifs eau, carottes, cage
 */
-
+var debug = 0; // 0 = Off   1 = On
 var males = [1, 1, 0, 3]; // cage male - nb male adulte dans cages - nb male petit dans cages - tarif base M
 var femelles = [1, 1, 0, 4]; // cage femelle - nb femelle adulte dans cages - nb femelle petit dans cages - tarif base F
 var varis = [30, 60, 50, 25]; // litre d'eau - kilo de nourriture - argent en caisse - population par cage
-var param = [20, 15, 0.6, 0.8, 1, 2, 5, 15]; // conso mois eau adulte male - conso mois carottes adulte male
+var param = [20, 15, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male - conso mois carottes adulte male
 // - variation conso adulte/petit - variation conso male/femelle
 // - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
+// - marge bas reproduction - marge haut reproduction
 var paramTmp = [];
 
 function state() {
@@ -85,7 +87,7 @@ function paramStage() {
 }
 
 function surPop(nLapins, nCage) {
-  let nbMorts = nLapins - (varis[3] * nCage);
+  let nbMorts = nLapins - varis[3] * nCage;
   // si nb morts > nb adultes => 2/3 - 1/3 deduire adultes - petits
   // regle applicable sans condition d'exactitude proportionnelle : flou du resultat accepté
   if (nbMorts > males[1] + femelles[1]) {
@@ -94,8 +96,7 @@ function surPop(nLapins, nCage) {
     femelles[1] = femelles[1] / 3;
     femelles[2] = (femelles[2] / 3) * 2;
     return nbMorts;
-  } else
-  return 0;
+  } else return 0;
 }
 
 // mortalité par faim ou par soif
@@ -134,9 +135,9 @@ function mortalite(type) {
     varis[0] = 0;
     let potMorts = Math.abs(virtuRest) / param[0];
 
-    console.log("Debug");
-    console.log("PotMorts = " + potMorts.toFixed(0));
-    console.log("");
+    if (debug == 1) {
+      console.log("PotMorts = " + potMorts.toFixed(0));
+    }
     males[1] -= (potMorts.toFixed(0) * 2) / 5;
     femelles[1] -= (potMorts.toFixed(0) * 3) / 5;
   }
@@ -160,15 +161,36 @@ function affectCaisse(direction, somme) {
 }
 
 function calculPrix(valBase) {
-    let min = valBase*(1-(param[7]/100));
-    let max = valBase*(1+(param[7]/100));
-//     return min;
-   return Math.floor(Math.random() * (max - min + 1)) + min;
+  let min = valBase * (1 - param[7] / 100);
+  let max = valBase * (1 + param[7] / 100);
+  //     return min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function repro(accoup) {
+  // entre 4 a 8 laperots par portee
+  // repartition : 30 à 70% males
+  let petits = [];
+  let nbPortee = Math.floor((param[9] - param[8]) * Math.random()) + param[8];
+  let repart = Math.floor(40 * Math.random()) + 30;
+  let laRepro = accoup * nbPortee;
+  let pM = Math.floor((laRepro * repart) / 100);
+  let pF = laRepro - pM;
+  if (debug == 1) {
+    console.log("nbPortee = " + nbPortee);
+    console.log("repart : " + repart);
+    console.log("La repro : " + laRepro);
+    console.log("Males P : " + pM);
+    console.log("Femelles P : " + pF);
+  }
+  return (petits = [pM, pF]);
 }
 
 /***********************/
 /* Debut d'application */
 /***********************/
+
+console.clear();
 
 state();
 
@@ -191,12 +213,13 @@ paramStage();
 //===>> decaisser 10
 //===>> console.log('En moins : '+ affectCaisse(0,10));  // reste 47
 
+/*
 console.log('Tarifs cage :'+calculPrix(param[6]));
 console.log('Tarifs Lapin Male :'+calculPrix(males[3]));
 console.log('Tarifs Lapin Femelle :'+calculPrix(femelles[3]));
 console.log('Tarifs litre d\'eau :'+calculPrix(param[4]));
 console.log('Tarifs kilo de carottes :'+calculPrix(param[5]));
-
+*/
 
 // combien de nourriture : index 1
 console.log("Besoin conso carottes: ");
@@ -208,6 +231,18 @@ console.log("Besoin conso eau: ");
 console.log(mortalite(0));
 
 // calcul nb lapins nouveau cheptel
+if (debug == 1) {
+  console.log(
+    "Petits males = " + males[2] + " Petites femelles : " + femelles[2]
+  );
+}
+let petits = repro(7);
+console.log("Pour accouplement de 3 : " + petits);
+males[2] += petits[0];
+femelles[2] += petits[1];
+console.log(
+  "Petits males = " + males[2] + " Petites femelles : " + femelles[2]
+);
 
 // calcul besoin en nourriture
 
@@ -221,9 +256,15 @@ console.log(mortalite(0));
 
 // si adulte M ou F = 0, continuer si M et F dans petits, sinon Game Over
 
-console.log("*********************************************************************");
-console.log("*********************************************************************");
-console.log("*********************************************************************");
+console.log(
+  "*********************************************************************"
+);
+console.log(
+  "*********************************************************************"
+);
+console.log(
+  "*********************************************************************"
+);
 console.log("");
 
 state();
