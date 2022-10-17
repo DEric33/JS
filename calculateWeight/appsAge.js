@@ -11,6 +11,6 @@ function howOld(age, year) {
   }
 }
 
-//console.log(howOld(27,2030));
-console.log(howOld(39, 1957));
+console.log(howOld(27,2030));
+//console.log(howOld(39, 1957));
 //console.log(howOld(46,2022));
