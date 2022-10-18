@@ -15,12 +15,14 @@ mortalite       mortalite pour faim ou soif
 repro           reproduction
 affectCaisse    gestion caisse entree et sortie
 calculPrix      calcule tarifs eau, carottes, cage
+needWaterFood   besoin d'apres cheptel en eau ou en carottes
+around          gestion de la virgule
 */
-var debug = 0; // 0 = Off   1 = On
+var debug = 1; // 0 = Off   1 = On
 var males = [1, 1, 0, 3]; // cage male - nb male adulte dans cages - nb male petit dans cages - tarif base M
 var femelles = [1, 1, 0, 4]; // cage femelle - nb femelle adulte dans cages - nb femelle petit dans cages - tarif base F
 var varis = [30, 60, 50, 25]; // litre d'eau - kilo de nourriture - argent en caisse - population par cage
-var param = [20, 15, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male - conso mois carottes adulte male
+var param = [2, 4, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male - conso mois carottes adulte male
 // - variation conso adulte/petit - variation conso male/femelle
 // - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
 // - marge bas reproduction - marge haut reproduction
@@ -131,6 +133,8 @@ function mortalite(type) {
   // restant virtuel
   let virtuRest = varis[0] - besoinConso;
   // si restant virtuel <= 0 , kg carottes = 0 , calcul kg manquants , deduire mortalité sur adultes (2/5 M, 3/5 F)
+
+  //  !!!!!!!!!!!! Ca ne prend pas en compte la morta Carottes - varis[1]  !!!!!!!!!!   A REVOIR   !!!!!!
   if (virtuRest <= 0) {
     varis[0] = 0;
     let potMorts = Math.abs(virtuRest) / param[0];
@@ -186,13 +190,50 @@ function repro(accoup) {
   return (petits = [pM, pF]);
 }
 
+function needWaterFood(type){
+  switch (type) {       // 0 conso eau / 1 conso carottes // adulte male
+ 
+    case 0:
+      besoinConso =
+        param[0] *
+        (males[1] +
+          males[2] * param[2] +
+          femelles[1] * param[3] +
+          femelles[2] * param[2] * param[3]);
+      break;
+    case 1:
+      besoinConso =
+        param[1] *
+        (males[1] +
+          males[2] * param[2] +
+          femelles[1] * param[3] +
+          femelles[2] * param[2] * param[3]);
+      break;
+    default:
+      console.log("Erreur");
+  }
+
+  return besoinConso;
+  /*conso femelle = conso male * param[3]
+  conso petit male = conso male * param[2]
+  conso petite femelle = conso femelle * param[2]*/
+
+}
+
+function around(number,howMany){
+  return number.toFixed(howMany);
+}
+
 /***********************/
 /* Debut d'application */
 /***********************/
 
 console.clear();
+console.log("*********** S T A R T ****************")
 
+if(debug==0){
 state();
+}
 
 paramStage();
 
@@ -244,9 +285,17 @@ console.log(
   "Petits males = " + males[2] + " Petites femelles : " + femelles[2]
 );
 
+// on calcule les besoins à partir des consos de male adulte
+/*
+conso femelle = conso male * param[3]
+conso petit male = conso male * param[2]
+conso petite femelle = conso femelle * param[2]
+*/
 // calcul besoin en nourriture
+console.log("Besoin en eau : "+around(needWaterFood(1),3)+" litre(s)"); // 0 = eau // 1 = carottes
 
 // calcul besoin en eau
+console.log("Besoin en carottes : "+around(needWaterFood(0),3)+" kilo(s)"); // 0 = eau // 1 = carottes
 
 // si besoin nourriture suffisant, deduire nourriture necessaire
 // sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
