@@ -1,0 +1,68 @@
+1. Créez une fonction generateTarget(). 
+Cette fonction doit renvoyer un entier aléatoire entre 0 et 9.
+Cette fonction a pour but d'être appelée au début de chaque nouveau tour afin 
+de générer le nouveau numéro cible secret.
+
+2. Créez une fonction compareGuesses(). Cette fonction :
+Possède trois paramètres représentant la supposition de l'utilisateur (humain),
+une supposition de l'ordinateur et le numéro cible secret à deviner.
+Détermine quel joueur (humain ou ordinateur) gagne en fonction de la supposition
+la plus proche de la cible. Si les deux joueurs sont à égalité, l'utilisateur 
+humain devrait gagner.
+Renvoie vrai si le joueur humain gagne, et faux si le joueur ordinateur gagne.
+Le but de cette fonction est d'être appelée à chaque tour pour déterminer quelle
+ estimation est la plus proche du nombre cible.
+
+3. Créez une fonction updateScore(). Cette fonction :
+A un seul paramètre. Ce paramètre sera une valeur de chaîne représentant le 
+gagnant.
+Augmente la variable de score (humanScore ou computerScore) de 1 en fonction du 
+gagnant transmis à updateScore. La chaîne transmise sera soit 'human', soit 'computer'.
+N'a pas besoin de retourner de valeur.
+Le but de cette fonction est d'être utilisé pour augmenter correctement le score du 
+vainqueur après chaque tour.
+
+4. Créez une fonction advanceRound(). Cette fonction doit augmenter la valeur de 
+currentRoundNumber de 1.
+Le but de cette fonction est d'être utilisé pour mettre à jour le numéro de tour après
+ chaque tour.
+Après avoir terminé advanceRound(), votre jeu Number Guesser devrait être pleinement 
+opérationnel. Vous devriez pouvoir faire des suppositions, voir votre score ou celui 
+de l'ordinateur augmenter correctement, passer au tour suivant et voir le bon tour 
+affiché.
+
+5. Testez que votre code fonctionne correctement en appelant vos fonctions nouvellement 
+écrites dans script.js avec des exemples d'entrées. Vous pouvez supprimer ce code une 
+fois que vous êtes convaincu que tout fonctionne comme il se doit.
+
+6. Excellent travail ! Si vous souhaitez voir la solution, passez à la tâche suivante. 
+Si vous souhaitez étendre votre projet par vous-même, vous pouvez envisager ce qui suit :
+Vous avez probablement calculé la distance entre la supposition de l'ordinateur et la 
+cible et entre la supposition humaine et la cible. Déplacez ceci dans une fonction séparée 
+getAbsoluteDistance() qui prend deux nombres et renvoie la distance, puis utilisez-la dans 
+votre fonction compareGuesses().
+Ajoutez une fonctionnalité pour vérifier si l'utilisateur devine est compris entre 0 et 9 
+et alert() l'utilisateur que son numéro est hors plage. Il n'est pas possible de définir 
+un nombre en dehors de cette plage avec les boutons + et =, mais les utilisateurs peuvent 
+le faire en tapant directement dans le champ de saisie.
+
+7. Excellent travail ! Visitez nos forums pour comparer votre projet à notre exemple de code
+ de solution. Vous pouvez également apprendre à héberger votre propre solution sur GitHub 
+ afin de pouvoir la partager avec d'autres apprenants ! Votre solution peut sembler différente
+  de la nôtre, et ce n'est pas grave ! Il existe plusieurs façons de résoudre ces projets, et 
+  vous en apprendrez plus en voyant le code des autres.
+
+============================================================================================
+
+Projet de défi : Devineur de nombres
+Aperçu
+Ce projet est légèrement différent des autres que vous avez rencontrés jusqu'à présent sur Codecademy. Au lieu d'un tutoriel étape par étape, ce projet contient une série d'exigences ouvertes qui décrivent le projet que vous allez construire. Il existe de nombreuses façons de remplir correctement toutes ces exigences, et vous devez vous attendre à utiliser Codecademy, Internet et d'autres ressources lorsque vous rencontrez un problème que vous ne pouvez pas résoudre facilement. Pour mener à bien ce projet, vous devez avoir terminé les trois premières sections de Introduction à JavaScript via Apprendre JavaScript : Fonctions.
+
+Objectifs du projet
+Dans ce projet, vous allez écrire des fonctions JavaScript pour alimenter un petit jeu de devinettes. Votre code s'exécutera dans le navigateur au lieu du terminal, et vous pouvez utiliser la console de votre navigateur pour vous aider à tester vos fonctions et afficher les éventuelles erreurs de syntaxe.
+
+Exigences du projet
+Dans ce projet, vous allez écrire quatre fonctions dans script.js. Nous avons fourni du code JavaScript supplémentaire dans game.js qui appellera vos fonctions en fonction des interactions de l'utilisateur, mais vous n'avez pas besoin de regarder game.js et ne devriez pas le modifier si vous voulez que votre projet fonctionne comme prévu. Au fur et à mesure que vous terminez ce projet, assurez-vous que toutes vos fonctions sont nommées exactement comme spécifié dans ces tâches afin qu'elles puissent être appelées correctement lorsque le jeu est joué. Dans ce projet, vos fonctions JavaScript sont intégrées dans un site Web qui utilise également HTML/CSS. Vous en apprendrez plus sur la façon de procéder à partir de zéro au fur et à mesure que vous poursuivez votre voyage JavaScript. Explorez la version terminée du projet pour avoir une idée de ce que vous allez construire.
+
+Instructions de configuration
+Si vous choisissez de faire ce projet sur votre ordinateur au lieu de Codecademy, vous pouvez télécharger ce dont vous aurez besoin en cliquant sur le bouton "Télécharger" ci-dessous. Vous devrez ouvrir et travailler dans script.js dans un éditeur de texte, et ouvrir index.html dans un navigateur pour tester votre code. Si vous avez besoin d'aide pour la configuration sur votre propre ordinateur, lisez notre article sur la configuration d'un éditeur de texte pour le développement Web.
