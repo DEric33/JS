@@ -8,15 +8,17 @@ cheptel[]={[[0,1],[0,1],[0,0]],[[1,1],[1,1],[1,0]]}
 
 /*
 Liste des fonctions
-state           affiche l'etat du moment
-paramStage      consommations du mois
-surPop          renvoie nb morts suite a surpopulation
-mortalite       mortalite pour faim ou soif
-repro           reproduction
-affectCaisse    gestion caisse entree et sortie
-calculPrix      calcule tarifs eau, carottes, cage
-needWaterFood   besoin d'apres cheptel en eau ou en carottes
-around          gestion de la virgule
+state               affiche l'etat du moment
+paramStageEau       consommations du mois
+paramStageCarottes  consommations du mois
+surPop              renvoie nb morts suite a surpopulation
+mortalite           mortalite pour faim ou soif
+repro               reproduction
+affectCaisse        gestion caisse entree et sortie
+calculPrix          calcule tarifs eau, carottes, cage
+needWaterFood       besoin d'apres cheptel en eau ou en carottes
+around              gestion de la virgule
+checkQty            verif assez eau ou assez carottes
 */
 var debug = 1; // 0 = Off   1 = On
 var males = [1, 1, 0, 3]; // cage male - nb male adulte dans cages - nb male petit dans cages - tarif base M
@@ -69,23 +71,30 @@ function state() {
   console.log("Et votre fond de caisse se monte à " + varis[2] + " euros");
 }
 
-function paramStage() {
+function paramStageEau() {
   let consoEauMale = param[0];
   let consoEauFemelle = param[0] * param[3];
   let consoEauPMale = param[0] * param[2];
   let consoEauPFemelle = param[0] * param[3] * param[2];
+
+  let eauMois =
+    consoEauMale + consoEauFemelle + consoEauPMale + consoEauPFemelle;
+
+
+  return eauMois;
+}
+
+function paramStageCarottes() {
   let consoFoodMale = param[1];
   let consoFoodFemelle = param[1] * param[3];
   let consoFoodPMale = param[1] * param[2];
   let consoFoodPFemelle = param[1] * param[3] * param[2];
 
-  let eauMois =
-    consoEauMale + consoEauFemelle + consoEauPMale + consoEauPFemelle;
   let foodMois =
     consoFoodMale + consoFoodFemelle + consoFoodPMale + consoFoodPFemelle;
-  console.log("Conso du mois");
-  console.log("Eau : " + eauMois);
-  console.log("Food : " + foodMois);
+ 
+    console.log('FOOD '+foodMois);
+  return foodMois;
 }
 
 function surPop(nLapins, nCage) {
@@ -224,6 +233,28 @@ function around(number,howMany){
   return number.toFixed(howMany);
 }
 
+function checkQty(type,value){
+  switch (type) {
+    case 0: // verif eau
+      if(value>varis[0]){
+        return varis[0] - value;
+      }else{  // revoir logique : tester < 0 => calcul reste et morts
+        return varis[1] - value;
+      }
+      break;
+    case 1: // verif carottes
+      if(value>varis[1]){
+        return varis[1] - value;
+      }else{  // revoir logique : tester < 0 => calcul reste et morts
+        return varis[1] - value;
+      }
+      break;
+    default:
+      console.log('ERREUR');
+  }
+}
+
+
 /***********************/
 /* Debut d'application */
 /***********************/
@@ -235,7 +266,8 @@ if(debug==0){
 state();
 }
 
-paramStage();
+console.log('Consommation mensuele en eau : '+paramStageEau());
+paramStageCarottes('Consommation mensuele en carottes : '+paramStageCarottes());
 
 // Debut du jeu
 
@@ -292,13 +324,16 @@ conso petit male = conso male * param[2]
 conso petite femelle = conso femelle * param[2]
 */
 // calcul besoin en nourriture
+console.log("** Conso du mois **");
 console.log("Besoin en eau : "+around(needWaterFood(1),3)+" litre(s)"); // 0 = eau // 1 = carottes
-
-// calcul besoin en eau
 console.log("Besoin en carottes : "+around(needWaterFood(0),3)+" kilo(s)"); // 0 = eau // 1 = carottes
 
 // si besoin nourriture suffisant, deduire nourriture necessaire
 // sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
+// checkQty(type,value);
+console.log('eau : '+ checkQty(0,52)); // conso de 52 litres d'eau
+console.log('carottes : '+ checkQty(1,25)); // conso de 25 kg de carottes
+
 
 // si besoin eau suffisant, deduire eau necessaire
 // sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
