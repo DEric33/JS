@@ -3,7 +3,7 @@ const { stdout, exit } = require("process");
 const { clearScreenDown } = require("readline");
 var readlineSync = require("readline-sync");
 
-var debug = 1; // 0 = Off   1 = On
+var debug = 0; // 0 = Off   1 = On
 
 /* 
 ************ RABBITS 2 ******************
@@ -36,7 +36,8 @@ var param = [2, 4, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male -
 // - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
 // - marge bas reproduction - marge haut reproduction
 var paramTmp = [];
-var nbRun = 2; //  12 run pour la version FileSystemHandle, soit un an
+var nbRun = 4; //  12 run pour la version FileSystemHandle, soit un an
+var verif; // pour tester conditions diverses
 
 // variables du jeu
 var vg_vente, vg_accoup;
@@ -206,7 +207,7 @@ function repro(accoup) {
   let pF = laRepro - pM;
   if (debug == 1) {
     console.log("nbPortee = " + nbPortee);
-    console.log("reparti : " + repart+" %");
+    console.log("reparti : " + repart + " %");
     console.log("La repro : " + laRepro);
     console.log("Males P : " + pM);
     console.log("Femelles P : " + pF);
@@ -218,7 +219,9 @@ function repro(accoup) {
 
 function state() {
   console.log("                   LAPINERIE ONLINE");
+  console.log("");
   console.log("*********************************************************");
+  console.log("");
   console.log("Votre lapinerie dispose de : ");
   console.log(
     males[0] +
@@ -237,7 +240,9 @@ function state() {
       femelles[2] +
       " petite(s) d'autre part"
   );
+  console.log("");
   console.log("*********************************************************");
+  console.log("");
   console.log("L'occupation est donc de : ");
   console.log(
     (males[1] + males[2]) / males[0] +
@@ -245,7 +250,9 @@ function state() {
       (femelles[1] + femelles[2]) / femelles[0] +
       " femelle(s) par cage"
   );
+  console.log("");
   console.log("*********************************************************");
+  console.log("");
   console.log("                      FOURNITURES");
   console.log(
     "Vous disposez de " +
@@ -257,17 +264,20 @@ function state() {
   console.log("Et votre fond de caisse se monte à " + varis[2] + " euros");
 }
 
-/* Mortalité par surpopulation */ /* A REVOIR !!!!!  FAUX !!! en mode dev en tous cas.. avec de vraies valeurs ca reste a voir */
+/* Mortalité par surpopulation */
 function surPop(nLapins, nCage) {
-  let nbMorts = nLapins - varis[3] * nCage;
-  // si nb morts > nb adultes => 2/3 - 1/3 deduire adultes - petits
-  // regle applicable sans condition d'exactitude proportionnelle : flou du resultat accepté
-  if (nbMorts > males[1] + femelles[1]) {
-    males[1] = males[1] / 3;
-    males[2] = (males[2] / 3) * 2;
-    femelles[1] = femelles[1] / 3;
-    femelles[2] = (femelles[2] / 3) * 2;
-    return nbMorts;
+  let reste = varis[3] * nCage - nLapins;
+  if (reste < 0) {
+    // 1/2 M - 1/2 F déduits
+    males[1] -= Math.abs(reste / 2);
+    if (males[1] < 0) {
+      males[1] = 0;
+    }
+    femelles[1] -= Math.abs(reste / 2);
+    if (femelles[1] < 0) {
+      femelles[1] = 0;
+    }
+    return Math.abs(reste);
   } else return 0;
 }
 
@@ -285,6 +295,12 @@ function reInitVarGame() {
   vg_accoup = 0;
 }
 
+function aere() {
+  console.log("");
+  console.log("*****                       **********");
+  console.log("");
+}
+
 /***********************/
 /* Debut d'application */
 /***********************/
@@ -298,19 +314,28 @@ console.log("*****        G A M E        **********");
 console.log("*****                       **********");
 console.log("**************************************");
 
-if (debug == 0) {
+if (debug == 3) {
   state();
 }
 
-console.log("Consommation mensuele en eau : " + paramStageEau());
-paramStageCarottes(
-  "Consommation mensuele en carottes : " + paramStageCarottes()
-);
+console.log("Consommation mensuelle en eau : " + paramStageEau());
+console.log("Consommation mensuelle en carottes : " + paramStageCarottes());
 
 // Debut du jeu
 for (party = 0; party < nbRun; party++) {
+  //console.clear();
+
+  console.log("Mois N° " + (party + 1));
+
   reInitVarGame();
 
+  state();
+
+  aere();
+
+  // transfert petits dans cages adultes
+  males[1] += males[2];
+  femelles[1] += femelles[2];
   // si 1er tour, pas de vente
   // sinon combien de vente M et F adultes + test surpopulation cages
   if (party > 0) {
@@ -334,9 +359,36 @@ for (party = 0; party < nbRun; party++) {
     femelles[1] -= vg_vente;
     varis[2] += femelles[3] * vg_vente;
 
+    aere();
+
     //===>> nb lapins dans nb cages
     //console.log("Surpopulation : "+surPop(totalCheptel(),males[0]+femelles[0]));
   }
+
+  // *** ACHAT CAGES ***
+  console.log(printPrice("des cages", param[6].toFixed(2)));
+  do {
+    cm_achat = readlineSync.question(
+      "Combien voulez-vous acheter de cages pour les males ? "
+    );
+  } while (cm_achat<0 || param[6] * cm_achat > varis[2]);
+
+  
+  males[0] += parseInt(cm_achat);
+  console.log(males[0]+'      *************************** YES')
+  varis[2] -= param[6] * cm_achat;
+  
+  do {
+    cf_achat = readlineSync.question(
+      "Combien voulez-vous acheter de cages pour les femelles ? "
+    );
+  } while (cf_achat<0 || param[6] * cf_achat > varis[2]);
+
+  femelles[0] += parseInt(cf_achat);
+  console.log(femelles[0]+'      *************************** YES')
+  varis[2] -= param[6] * cf_achat;
+  
+
 
   // *** REPRODUCTION ***
   console.log("**** Accouplement ****");
@@ -351,10 +403,28 @@ for (party = 0; party < nbRun; party++) {
 
   console.log(repro(vg_accoup));
 
+  aere();
+
   // **** VERIF SURPOPULATION ****
   // si totalCheptel / nbCages > 25  => true
 
+  verif = surPop(
+        males[1] + males[2] + femelles[1] + femelles[2],
+        males[0] + femelles[0]
+      );
+
+  if (verif>0){
+    console.log(verif+' pauvres lapins sont morts étouffés. Pensez à acheter des cages.');
+  }
+  
+  aere();
+
 }
+
+aere();
+aere();
+aere();
+aere();
 
 //===>> nb lapins dans nb cages
 //===>> console.log("Surpopulation : "+surPop(60,2));
@@ -417,6 +487,8 @@ console.log("carottes : " + checkQty(1, 25)); // conso de 25 kg de carottes
 // sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
 
 // si adulte M ou F = 0, continuer si M et F dans petits, sinon Game Over
+
+aere();
 
 console.log(
   "*********************************************************************"
