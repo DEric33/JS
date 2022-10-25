@@ -419,6 +419,29 @@ for (party = 0; party < nbRun; party++) {
   
   aere();
 
+
+// ****  VERIF CONSO OK  ****
+// ****    EAU OK ???    ****
+console.clear();
+console.log('****** SSSSSSSOOOOOOOOOOIIIIIIIIIIIFFFFFFFFFF : '+needWaterFood(0));
+verif = needWaterFood(0);
+if (verif<0){
+  console.log(verif+' pauvres lapins sont morts de soif. Pensez à acheter de l\'eau.');
+  // combien manque-t-il d'eau ? Deduire lapins morts . Meme rapport M/F que pour surpop
+
+}
+// **** CAROTTES OK ???? ****
+console.log('****** FFFFFFFFFFAAAAAAAAAAAAAAIIIIIIIINNNNNN : '+needWaterFood(1));
+verif = needWaterFood(1);
+if (verif<0){
+  console.log(verif+' pauvres lapins sont morts de faim. Pensez à acheter des carottes.');
+  // combien manque-t-il de carottes ? Deduire lapins morts . Meme rapport M/F que pour surpop
+
+}
+
+
+
+
 }
 
 aere();
