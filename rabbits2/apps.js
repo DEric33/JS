@@ -15,6 +15,7 @@ cheptel[]={[[0,1],[0,1],[0,0]],[[1,1],[1,1],[1,0]]}
 
 /*
 Liste des fonctions
+achat               achat eau, carottes... cages   // 0 - 1 - 2
 affectCaisse        gestion caisse entree et sortie
 around              gestion de la virgule
 calculPrix          calcule tarifs eau, carottes, cage
@@ -36,11 +37,30 @@ var param = [2, 4, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male -
 // - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
 // - marge bas reproduction - marge haut reproduction
 var paramTmp = [];
-var nbRun = 4; //  12 run pour la version FileSystemHandle, soit un an
+var nbRun = 2; //  12 run pour la version FileSystemHandle, soit un an
 var verif; // pour tester conditions diverses
 
 // variables du jeu
-var vg_vente, vg_accoup;
+var vg_vente, vg_accoup, tarif;
+
+function achat(type,qte,tarif){
+  switch (type) {
+    case 0:
+      // caisse -
+      varis[2] -= tarif * qte;
+      // eau +
+      varis[0] += qte * 1;
+      break;
+      case 1:
+        // caisse -
+        varis[2] -= tarif * qte;
+        // carottes +
+        varis[1] += qte * 1;
+        break;
+      default:
+      console.log('ERREUR');
+  }
+}
 
 function affectCaisse(direction, somme) {
   //varis[2]
@@ -243,13 +263,14 @@ function state() {
   console.log("");
   console.log("*********************************************************");
   console.log("");
-  console.log("L'occupation est donc de : ");
+  console.log("L'occupation moyenne est donc de : ");
   console.log(
-    (males[1] + males[2]) / males[0] +
+    around(((males[1] + males[2]) / males[0]),0) +
       " male(s) par cage et " +
-      (femelles[1] + femelles[2]) / femelles[0] +
+    around(((femelles[1] + femelles[2]) / femelles[0]),0) +
       " femelle(s) par cage"
-  );
+    )
+  ;
   console.log("");
   console.log("*********************************************************");
   console.log("");
@@ -257,7 +278,7 @@ function state() {
   console.log(
     "Vous disposez de " +
       varis[0] +
-      " litre(s) deau ainsi que " +
+      " litre(s) d'eau ainsi que " +
       varis[1] +
       " kilo(s) de nourriture"
   );
@@ -305,6 +326,18 @@ function aere() {
 /* Debut d'application */
 /***********************/
 
+/*
+* Déroulement
+- Vente males et femelles
+- Achat cages males et femelles
+- Reproduction
+- Achat eau
+- Achat carottes
+-
+- Verif surpopulation
+- Verif suffisament d'alimentation et d'eau
+ */
+
 console.clear();
 console.log("**************************************");
 console.log("*****                       **********");
@@ -318,8 +351,10 @@ if (debug == 3) {
   state();
 }
 
+console.log('FOR INFORMATION');
 console.log("Consommation mensuelle en eau : " + paramStageEau());
 console.log("Consommation mensuelle en carottes : " + paramStageCarottes());
+console.log('');
 
 // Debut du jeu
 for (party = 0; party < nbRun; party++) {
@@ -404,6 +439,34 @@ for (party = 0; party < nbRun; party++) {
   console.log(repro(vg_accoup));
 
   aere();
+
+  // **** Achat eau ****
+  tarif = calculPrix(param[4]);
+  console.log(printPrice("du litre d'eau",tarif));
+  do {
+    eau_achat = readlineSync.question(
+      "Combien voulez-vous acheter de litres d\'eau ? "
+    );
+  } while (eau_achat * tarif > varis[2]);
+
+  achat(0,eau_achat,tarif);
+
+  aere();
+  
+  // **** Achat carottes ****
+  tarif = calculPrix(param[5]);
+  console.log(printPrice("d'un kilo de carottes",tarif));
+  do {
+    carotte_achat = readlineSync.question(
+      "Combien voulez-vous acheter de kilos de carottes ? "
+    );
+  } while (carotte_achat * tarif > varis[2]);
+
+  achat(1,carotte_achat,tarif);
+
+  aere();
+  
+
 
   // **** VERIF SURPOPULATION ****
   // si totalCheptel / nbCages > 25  => true
