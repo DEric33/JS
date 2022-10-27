@@ -19,6 +19,7 @@ achat               achat eau, carottes... cages   // 0 - 1 - 2
 affectCaisse        gestion caisse entree et sortie
 around              gestion de la virgule
 calculPrix          calcule tarifs eau, carottes, cage
+checkDead           repartition du nb de morts sur MA et FA
 checkQty            verif assez eau ou assez carottes
 mortalite           mortalite pour faim ou soif
 needWaterFood       besoin d'apres cheptel en eau ou en carottes
@@ -37,13 +38,13 @@ var param = [2, 4, 0.6, 0.8, 1, 2, 5, 15, 4, 8]; // conso mois eau adulte male -
 // - tarif base eau - tarif base carotte - tarif base cage - variation tarif +/- en %
 // - marge bas reproduction - marge haut reproduction
 var paramTmp = [];
-var nbRun = 2; //  12 run pour la version FileSystemHandle, soit un an
+var nbRun = 4; //  12 run pour la version FileSystemHandle, soit un an
 var verif; // pour tester conditions diverses
 
 // variables du jeu
-var vg_vente, vg_accoup, tarif;
+var vg_vente, vg_accoup, tarif, rabbitsToKill;
 
-function achat(type,qte,tarif){
+function achat(type, qte, tarif) {
   switch (type) {
     case 0:
       // caisse -
@@ -51,14 +52,14 @@ function achat(type,qte,tarif){
       // eau +
       varis[0] += qte * 1;
       break;
-      case 1:
-        // caisse -
-        varis[2] -= tarif * qte;
-        // carottes +
-        varis[1] += qte * 1;
-        break;
-      default:
-      console.log('ERREUR');
+    case 1:
+      // caisse -
+      varis[2] -= tarif * qte;
+      // carottes +
+      varis[1] += qte * 1;
+      break;
+    default:
+      console.log("ERREUR");
   }
 }
 
@@ -87,6 +88,16 @@ function calculPrix(valBase) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function checkDead(nbDead){
+  let nbAdults = males[1] + femelles[1];
+  if (nbDead>=nbAdults){
+    males[1]=0;
+    femelles[1]=0;
+  }else{
+    males[1]-=nbDead/2;
+    femelles[1]-=nbDead/2;
+  }
+}
 function checkQty(type, value) {
   switch (type) {
     case 0: // verif eau
@@ -170,6 +181,7 @@ function needWaterFood(type) {
           males[2] * param[2] +
           femelles[1] * param[3] +
           femelles[2] * param[2] * param[3]);
+      return besoinConso - varis[0];
       break;
     case 1:
       besoinConso =
@@ -178,12 +190,13 @@ function needWaterFood(type) {
           males[2] * param[2] +
           femelles[1] * param[3] +
           femelles[2] * param[2] * param[3]);
+          return besoinConso - varis[1];
       break;
     default:
       console.log("Erreur");
   }
 
-  return besoinConso;
+  
   /*conso femelle = conso male * param[3]
   conso petit male = conso male * param[2]
   conso petite femelle = conso femelle * param[2]*/
@@ -265,12 +278,11 @@ function state() {
   console.log("");
   console.log("L'occupation moyenne est donc de : ");
   console.log(
-    around(((males[1] + males[2]) / males[0]),0) +
+    around((males[1] + males[2]) / males[0], 0) +
       " male(s) par cage et " +
-    around(((femelles[1] + femelles[2]) / femelles[0]),0) +
+      around((femelles[1] + femelles[2]) / femelles[0], 0) +
       " femelle(s) par cage"
-    )
-  ;
+  );
   console.log("");
   console.log("*********************************************************");
   console.log("");
@@ -351,10 +363,10 @@ if (debug == 3) {
   state();
 }
 
-console.log('FOR INFORMATION');
+console.log("FOR INFORMATION");
 console.log("Consommation mensuelle en eau : " + paramStageEau());
 console.log("Consommation mensuelle en carottes : " + paramStageCarottes());
-console.log('');
+console.log("");
 
 // Debut du jeu
 for (party = 0; party < nbRun; party++) {
@@ -379,7 +391,7 @@ for (party = 0; party < nbRun; party++) {
       vg_vente = readlineSync.question(
         "Combien voulez-vous vendre de males ? "
       );
-    } while (vg_vente > males[1]);
+    } while (vg_vente > males[1] || vg_vente=='');
 
     males[1] -= vg_vente;
     varis[2] += males[3] * vg_vente;
@@ -389,7 +401,7 @@ for (party = 0; party < nbRun; party++) {
       vg_vente = readlineSync.question(
         "Combien voulez-vous vendre de femelles ? "
       );
-    } while (vg_vente > femelles[1]);
+    } while (vg_vente > femelles[1] || vg_vente=='');
 
     femelles[1] -= vg_vente;
     varis[2] += femelles[3] * vg_vente;
@@ -406,24 +418,21 @@ for (party = 0; party < nbRun; party++) {
     cm_achat = readlineSync.question(
       "Combien voulez-vous acheter de cages pour les males ? "
     );
-  } while (cm_achat<0 || param[6] * cm_achat > varis[2]);
+  } while ((cm_achat < 0) || (param[6] * cm_achat > varis[2]) || isNaN(cm_achat));
 
-  
   males[0] += parseInt(cm_achat);
-  console.log(males[0]+'      *************************** YES')
+  console.log(males[0] + "      *************************** YES");
   varis[2] -= param[6] * cm_achat;
-  
+
   do {
     cf_achat = readlineSync.question(
       "Combien voulez-vous acheter de cages pour les femelles ? "
     );
-  } while (cf_achat<0 || param[6] * cf_achat > varis[2]);
+  } while ((cf_achat < 0) || (param[6] * cf_achat > varis[2]) || isNaN(cf_achat));
 
   femelles[0] += parseInt(cf_achat);
-  console.log(femelles[0]+'      *************************** YES')
+  console.log(femelles[0] + "      *************************** YES");
   varis[2] -= param[6] * cf_achat;
-  
-
 
   // *** REPRODUCTION ***
   console.log("**** Accouplement ****");
@@ -434,7 +443,7 @@ for (party = 0; party < nbRun; party++) {
     vg_accoup = readlineSync.question(
       "Combien voulez-vous effectuer d'accouplements ? "
     );
-  } while (vg_accoup > males[1] || vg_accoup > femelles[1]);
+  } while ((vg_accoup > males[1]) || (vg_accoup > femelles[1]) || (vg_accoup=''));
 
   console.log(repro(vg_accoup));
 
@@ -442,69 +451,79 @@ for (party = 0; party < nbRun; party++) {
 
   // **** Achat eau ****
   tarif = calculPrix(param[4]);
-  console.log(printPrice("du litre d'eau",tarif));
+  console.log(printPrice("du litre d'eau", tarif));
   do {
     eau_achat = readlineSync.question(
-      "Combien voulez-vous acheter de litres d\'eau ? "
+      "Combien voulez-vous acheter de litres d'eau ? "
     );
-  } while (eau_achat * tarif > varis[2]);
+  } while (eau_achat * tarif > varis[2] || eau_achat=='');
 
-  achat(0,eau_achat,tarif);
+  achat(0, eau_achat, tarif);
 
   aere();
-  
+
   // **** Achat carottes ****
   tarif = calculPrix(param[5]);
-  console.log(printPrice("d'un kilo de carottes",tarif));
+  console.log(printPrice("d'un kilo de carottes", tarif));
   do {
     carotte_achat = readlineSync.question(
       "Combien voulez-vous acheter de kilos de carottes ? "
     );
-  } while (carotte_achat * tarif > varis[2]);
+  } while (carotte_achat * tarif > varis[2] || carotte_achat=='');
 
-  achat(1,carotte_achat,tarif);
+  achat(1, carotte_achat, tarif);
 
   aere();
-  
-
 
   // **** VERIF SURPOPULATION ****
   // si totalCheptel / nbCages > 25  => true
 
   verif = surPop(
-        males[1] + males[2] + femelles[1] + femelles[2],
-        males[0] + femelles[0]
-      );
+    males[1] + males[2] + femelles[1] + femelles[2],
+    males[0] + femelles[0]
+  );
 
-  if (verif>0){
-    console.log(verif+' pauvres lapins sont morts étouffés. Pensez à acheter des cages.');
+  if (verif > 0) {
+    console.log(
+      verif + " pauvres lapins sont morts étouffés. Pensez à acheter des cages."
+    );
   }
-  
+
   aere();
 
-
-// ****  VERIF CONSO OK  ****
-// ****    EAU OK ???    ****
-console.clear();
-console.log('****** SSSSSSSOOOOOOOOOOIIIIIIIIIIIFFFFFFFFFF : '+needWaterFood(0));
-verif = needWaterFood(0);
-if (verif<0){
-  console.log(verif+' pauvres lapins sont morts de soif. Pensez à acheter de l\'eau.');
-  // combien manque-t-il d'eau ? Deduire lapins morts . Meme rapport M/F que pour surpop
-
-}
-// **** CAROTTES OK ???? ****
-console.log('****** FFFFFFFFFFAAAAAAAAAAAAAAIIIIIIIINNNNNN : '+needWaterFood(1));
-verif = needWaterFood(1);
-if (verif<0){
-  console.log(verif+' pauvres lapins sont morts de faim. Pensez à acheter des carottes.');
-  // combien manque-t-il de carottes ? Deduire lapins morts . Meme rapport M/F que pour surpop
-
-}
-
-
-
-
+  // ****  VERIF CONSO OK  ****
+  // ****    EAU OK ???    ****
+  console.clear();
+  console.log(
+    "- Morts de soif : " + needWaterFood(0)
+  );
+  verif = needWaterFood(0);
+  if (verif < 0) {
+    console.log(
+      Math.abs(around(verif,0)) + " pauvres lapins sont morts de soif. Pensez à acheter de l'eau."
+      );
+      varis[0]=0;
+    // combien manque-t-il d'eau ? Deduire lapins morts . Meme rapport M/F que pour surpop
+    // nb lapins calculés sur la base du coeficient conso male * conso femelle * conso petits * qte
+    rabbitsToKill = Math.abs(verif)*param[0]*param[2]*param[3];
+    checkDead(rabbitsToKill);
+    console.log("*Rabbits to kill *****************>>>>> "+rabbitsToKill);
+  }
+  // **** CAROTTES OK ???? ****
+  console.log(
+    "- Morts de faim : " + Math.abs(needWaterFood(1))
+  );
+  verif = needWaterFood(1);
+  if (verif < 0) {
+    console.log(
+      Math.abs(around(verif,0)) +
+        " pauvres lapins sont morts de faim. Pensez à acheter des carottes."
+    );
+    // combien manque-t-il de carottes ? Deduire lapins morts . Meme rapport M/F que pour surpop
+    rabbitsToKill = Math.abs(verif)*param[1]*param[2]*param[3];
+    checkDead(rabbitsToKill);
+    console.log("*Rabbits to kill *****************>>>>> "+rabbitsToKill);
+  }
 }
 
 aere();
