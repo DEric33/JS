@@ -94,6 +94,9 @@ function checkDead(nbDead){
     males[1]=0;
     femelles[1]=0;
   }else{
+    console.log('* * * * * * * * * * * * * * * * * * * * * * * *');
+    console.log('nbDead = '+nbDead+' soit pour moitié : '+nbDead/2);
+    console.log('* * * * * * * * * * * * * * * * * * * * * * * *');
     males[1]-=nbDead/2;
     femelles[1]-=nbDead/2;
   }
@@ -181,7 +184,7 @@ function needWaterFood(type) {
           males[2] * param[2] +
           femelles[1] * param[3] +
           femelles[2] * param[2] * param[3]);
-      return besoinConso - varis[0];
+      return varis[0] - besoinConso;
       break;
     case 1:
       besoinConso =
@@ -190,7 +193,7 @@ function needWaterFood(type) {
           males[2] * param[2] +
           femelles[1] * param[3] +
           femelles[2] * param[2] * param[3]);
-          return besoinConso - varis[1];
+          return varis[1] - besoinConso;
       break;
     default:
       console.log("Erreur");
@@ -246,11 +249,15 @@ function repro(accoup) {
     console.log("Femelles P : " + pF);
   }
   males[2] += pM;
+console.log('Ce qui donne '+males[2]+' petits males');
   femelles[2] += pF;
+  console.log('Ce qui donne '+femelles[2]+' petites femelles');
   return (petits = [pM, pF]); // supprimable
 }
 
 function state() {
+  console.log("*********************************************************");
+  console.log("");
   console.log("                   LAPINERIE ONLINE");
   console.log("");
   console.log("*********************************************************");
@@ -330,7 +337,7 @@ function reInitVarGame() {
 
 function aere() {
   console.log("");
-  console.log("*****                       **********");
+  console.log("*********                       **********");
   console.log("");
 }
 
@@ -415,23 +422,27 @@ for (party = 0; party < nbRun; party++) {
   // *** ACHAT CAGES ***
   console.log(printPrice("des cages", param[6].toFixed(2)));
   do {
+    
     cm_achat = readlineSync.question(
       "Combien voulez-vous acheter de cages pour les males ? "
     );
-  } while ((cm_achat < 0) || (param[6] * cm_achat > varis[2]) || isNaN(cm_achat));
+  } while ((cm_achat < 0) || (param[6] * cm_achat > varis[2]));
+  if(!isNaN(cm_achat)){cm_achat=0;}
 
   males[0] += parseInt(cm_achat);
-  console.log(males[0] + "      *************************** YES");
+  console.log(males[0] + "      * * * * * * * * * YES * * * * * * * * *");
   varis[2] -= param[6] * cm_achat;
 
   do {
+    cf_achat = 0;
     cf_achat = readlineSync.question(
       "Combien voulez-vous acheter de cages pour les femelles ? "
     );
   } while ((cf_achat < 0) || (param[6] * cf_achat > varis[2]) || isNaN(cf_achat));
+  if(!isNaN(cf_achat)){cf_achat=0;}
 
   femelles[0] += parseInt(cf_achat);
-  console.log(femelles[0] + "      *************************** YES");
+  console.log(femelles[0] + "      * * * * * * * * * YES * * * * * * * * *");
   varis[2] -= param[6] * cf_achat;
 
   // *** REPRODUCTION ***
@@ -440,12 +451,15 @@ for (party = 0; party < nbRun; party++) {
     console.log(males[1] + " males et " + femelles[1] + " femelles");
   }
   do {
+    vg_accoup=0;
     vg_accoup = readlineSync.question(
       "Combien voulez-vous effectuer d'accouplements ? "
     );
-  } while ((vg_accoup > males[1]) || (vg_accoup > femelles[1]) || (vg_accoup=''));
+  } while ((vg_accoup > males[1]) || (vg_accoup > femelles[1]));
 
   console.log(repro(vg_accoup));
+
+
 
   aere();
 
@@ -531,67 +545,22 @@ aere();
 aere();
 aere();
 
-//===>> nb lapins dans nb cages
-//===>> console.log("Surpopulation : "+surPop(60,2));
 
-// combien d'accouplements
 
-// combien de cages
-//===>> decaisser 10
-//===>> console.log('En moins : '+ affectCaisse(0,10));  // reste 47
+
 
 /*
-console.log('Tarifs cage :'+calculPrix(param[6]));
-console.log('Tarifs Lapin Male :'+calculPrix(males[3]));
-console.log('Tarifs Lapin Femelle :'+calculPrix(femelles[3]));
-console.log('Tarifs litre d\'eau :'+calculPrix(param[4]));
-console.log('Tarifs kilo de carottes :'+calculPrix(param[5]));
+EN COURS (-) / RESOLU (+) :
+- Pas de validation sur achat de caisse: si return sec, enregistre NaN  + 221028
+- Pas de validation sur accouplement: si return sec, enregistre 0       + 221028
+- continue meme avec 0 adulte et 0 petit : il faut un GameOver !
+- Accouplement ne fonctionne plus
 */
 
-// combien de nourriture : index 1
-console.log("Besoin conso carottes: ");
-console.log(mortalite(1));
 
-// combien d'eau : index 0
-//console.log('Mortalité : ');
-console.log("Besoin conso eau: ");
-console.log(mortalite(0));
 
-// calcul nb lapins nouveau cheptel
-if (debug == 1) {
-  console.log(
-    "Petits males = " + males[2] + " Petites femelles : " + femelles[2]
-  );
-}
-let petits = repro(7);
-console.log("Pour accouplement de 3 : " + petits);
-males[2] += petits[0];
-femelles[2] += petits[1];
-console.log(
-  "Petits males = " + males[2] + " Petites femelles : " + femelles[2]
-);
 
-// on calcule les besoins à partir des consos de male adulte
-/*
-conso femelle = conso male * param[3]
-conso petit male = conso male * param[2]
-conso petite femelle = conso femelle * param[2]
-*/
-// calcul besoin en nourriture
-console.log("** Conso du mois **");
-console.log("Besoin en eau : " + around(needWaterFood(1), 3) + " litre(s)"); // 0 = eau // 1 = carottes
-console.log("Besoin en carottes : " + around(needWaterFood(0), 3) + " kilo(s)"); // 0 = eau // 1 = carottes
 
-// si besoin nourriture suffisant, deduire nourriture necessaire
-// sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
-// checkQty(type,value);
-console.log("eau : " + checkQty(0, 52)); // conso de 52 litres d'eau
-console.log("carottes : " + checkQty(1, 25)); // conso de 25 kg de carottes
-
-// si besoin eau suffisant, deduire eau necessaire
-// sinon affecter 0, calculer et deduire nb morts (moitie M - moitié F / moitie adultes - moitié petits)
-
-// si adulte M ou F = 0, continuer si M et F dans petits, sinon Game Over
 
 aere();
 
