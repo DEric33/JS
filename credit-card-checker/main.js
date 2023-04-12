@@ -49,26 +49,31 @@ const validateCred = (array) => {
   }
 *
 */
-console.log(array);
-  for (let i = array.length-1; i > 0; i--) {
-    console.log(array[i]);
+///console.log(array);
+let array1 = [];
+  for (let i = array.length-1; i >= 0; i--) {
+  ///  console.log(array[i]);
     if (i%2 === 0) {
         // tous les 2 numéros sont doublés
         // si > 9 soustraire 9
         if((array[i]*2)>9){
-            array[i]=(array[i]*2)-9;
+            array1[i]=(array[i]*2)-9;
         }else{
-            array[i]=array[i]*2;
+            array1[i]=array[i]*2;
         }
+    } else {
+        array1[i] = array[i];
     }
   }
-  console.log(array.reverse());
+  // renverse le tableau pour... juste compliquer les choses.. delete !!
+  ////array1 = array1.reverse();
+ /// console.log(array1);
 
 
   // somme de verification
   let verSum=0;
-  for (let j = 0; j < array.length; j++) {
-    verSum = verSum + array[j];
+  for (let j = 0; j < array1.length; j++) {
+    verSum = verSum + array1[j];
    // console.log(verSum);
   }
 
@@ -80,11 +85,13 @@ console.log(array);
 };
 
 const findInvalidCards = array => { 
-  //  console.log(validateCred(array));
- // array = array.reverse();
 
-  array.forEach(element => {
-    console.log(validateCred(array[element]));
+  array.forEach((element,k) => {
+    //console.log(validateCred(array[k]));
+   // console.log('** '+array[k]+' => '+validateCred(array[k]));
+    if(!validateCred(array[k])){
+        console.log('ok');
+    }
   });
   //console.log(validateCred(array[4]));
 }
@@ -95,16 +102,12 @@ const initArray = array => {
 
 //console.log('Invalid1 : '+vvalidateCred(invalid1));
 //console.log('Invalid3 : '+validateCred(invalid3));
-console.log('Valid1 : '+validateCred(valid1));
+//console.log('Valid1 : '+validateCred(valid1));
 //console.log('Valid3 : '+validateCred(valid3));
 
 //console.log(batch);
-//\console.log(findInvalidCards(batch));
+findInvalidCards(batch);
 //findInvalidCards(batch);
 
-/*
-console.log(initArray(valid1));
-let test = initArray(valid1);
-console.log(test);
-*/
+
 
