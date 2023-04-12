@@ -25,6 +25,9 @@ const batch = [
 ];
 
 // Add your functions below:
+// init array cards invalid
+const invalidCard = [];
+
 const validateCred = (array) => {
    /// initArray(array);
     //array = array.reverse();
@@ -34,21 +37,6 @@ const validateCred = (array) => {
   console.log('valid1 Attendu final : 8 0 8 3 1 0 8 0 9 5 7 3 9 6 5 8');           //      [4, 5,    3, 9,    6, 7,    7, 9,    0, 8,    0, 1,    6, 8,    0, 8]
 */
                                                                             
-/* RECRITURE DANS SENS NORMAL
-/*
-  for (let i = 0; i < array.length; i++) {
-    if ((i+1) % 2 === 0) {
-        // tous les 2 numéros sont doublés
-        // si > 9 soustraire 9
-        if((array[i]*2)>9){
-            array[i]=(array[i]*2)-9;
-        }else{
-            array[i]=array[i]*2;
-        }
-    }
-  }
-*
-*/
 ///console.log(array);
 let array1 = [];
   for (let i = array.length-1; i >= 0; i--) {
@@ -65,10 +53,6 @@ let array1 = [];
         array1[i] = array[i];
     }
   }
-  // renverse le tableau pour... juste compliquer les choses.. delete !!
-  ////array1 = array1.reverse();
- /// console.log(array1);
-
 
   // somme de verification
   let verSum=0;
@@ -86,20 +70,40 @@ let array1 = [];
 
 const findInvalidCards = array => { 
 
+    let cpt=-1;
+    let array2=[];
   array.forEach((element,k) => {
     //console.log(validateCred(array[k]));
    // console.log('** '+array[k]+' => '+validateCred(array[k]));
     if(!validateCred(array[k])){
-        console.log('ok');
+        cpt++;
+        console.log('** '+array[k]+' => '+validateCred(array[k]));
+        array2[cpt] = array[k][0];  // index des sociétés
     }
   });
   //console.log(validateCred(array[4]));
+  console.log(array2);
+ // return array2;
+}
+
+const idInvalidCardCompanies = array => {
+////    array.forEach((element,k) => {
+        array.map((element) => {
+            //console.log(validateCred(array[k]));
+//        console.log('** '+array[k]+' => '+ k);
+////console.log('** '+array[k]+findInvalidCards(array[k]));
+        console.log('** '+element);
+        /* if(!validateCred(array[k])){
+            console.log('** '+array[k]+' => '+validateCred(array[k]));
+        }*/
+    })
 }
 
 const initArray = array => {
     return array = array.reverse();
 }
 
+console.log();
 //console.log('Invalid1 : '+vvalidateCred(invalid1));
 //console.log('Invalid3 : '+validateCred(invalid3));
 //console.log('Valid1 : '+validateCred(valid1));
@@ -109,5 +113,5 @@ const initArray = array => {
 findInvalidCards(batch);
 //findInvalidCards(batch);
 
-
+// =>=>=>=> to ontinue : idInvalidCardCompanies(findInvalidCards(batch));
 
